@@ -3,7 +3,7 @@ import os
 import shutil
 import uuid
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QApplication, QMainWindow, QMessageBox, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QSplitter, QTreeWidget, QTreeWidgetItem, QListWidget,
     QFileDialog, QLineEdit
 )
@@ -146,7 +146,7 @@ class MainWindow(QMainWindow):
             self.collect_checked_files(item.child(i), result)
 
     def format_path(self, path):
-        pattern = r'^[\d\s\-]+|[\s\-]*\(.*?\)$|[\s\-]*$'
+        pattern = r'^(\d+)-|(\(\d+\))$'
         directory = re.sub(pattern, '', os.path.basename(os.path.dirname(path)))
         filename = re.sub(pattern, '', os.path.splitext(os.path.basename(path))[0])
         pattern = self.text_input.text()
@@ -179,7 +179,16 @@ class MainWindow(QMainWindow):
                     line = PATTERN_SINGLE.format(files[i][0], files[i][1])
                 f.write(line)
 
-        typst.compile(output_file, output=base+".pdf", root=os.path.dirname(output_file))
+        try:
+            typst.compile(output_file, output=base+".pdf", root=os.path.dirname(output_file))
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Icon.Information)
+            msg.setWindowTitle("Success")
+            msg.setText("Generation Successful!")
+            msg.setInformativeText(f"File saved as {os.path.basename(base)}.pdf")
+            msg.exec()
+        except Exception as e:
+            sys.exit(1)
 
 
 
