@@ -146,8 +146,9 @@ class MainWindow(QMainWindow):
             self.collect_checked_files(item.child(i), result)
 
     def format_path(self, path):
-        directory = re.sub(r'^[\d\s\-]+', '', os.path.basename(os.path.dirname(path)))
-        filename = re.sub(r'^[\d\s\-]+', '', os.path.splitext(os.path.basename(path))[0])
+        pattern = r'^[\d\s\-]+|[\s\-]*\(.*?\)$|[\s\-]*$'
+        directory = re.sub(pattern, '', os.path.basename(os.path.dirname(path)))
+        filename = re.sub(pattern, '', os.path.splitext(os.path.basename(path))[0])
         pattern = self.text_input.text()
         return pattern.replace('%d', directory).replace('%f', filename)        
 
@@ -178,9 +179,8 @@ class MainWindow(QMainWindow):
                     line = PATTERN_SINGLE.format(files[i][0], files[i][1])
                 f.write(line)
 
-        print(os.path.dirname(output_file))
         typst.compile(output_file, output=base+".pdf", root=os.path.dirname(output_file))
-        
+
 
 
 if __name__ == "__main__":
